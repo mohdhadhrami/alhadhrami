@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تركيب الجزيئات الكيميائية</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🧪 لعبة تركيب الجزيئات الكيميائية</h1>
+            <div class="score-board">
+                <div class="score-item">
+                    <span>المستوى:</span>
+                    <span id="level">1</span>
+                </div>
+                <div class="score-item">
+                    <span>النقاط:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="score-item">
+                    <span>المحاولات:</span>
+                    <span id="attempts">3</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <div class="game-container">
+            <!-- Challenge Section -->
+            <div class="challenge-section">
+                <h2>🎯 التحدي الحالي</h2>
+                <div id="challenge-card">
+                    <div class="molecule-name">
+                        <h3 id="target-molecule-name">جزيء الماء</h3>
+                        <p id="target-molecule-formula">H₂O</p>
+                    </div>
+                    <div class="molecule-info">
+                        <p id="molecule-description">ركب جزيء الماء باستخدام ذرتين من الهيدروجين وذرة واحدة من الأكسجين</p>
+                    </div>
+                    <div class="target-visual" id="target-visual">
+                        <canvas id="target-canvas" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace -->
+            <div class="workspace-section">
+                <h2>⚗️ مساحة العمل</h2>
+                <div id="workspace" class="workspace">
+                    <p class="workspace-hint">اسحب الذرات هنا لتركيب الجزيء</p>
+                </div>
+                <div class="action-buttons">
+                    <button id="check-btn" class="btn btn-primary">✓ فحص التركيب</button>
+                    <button id="reset-btn" class="btn btn-secondary">↻ إعادة تعيين</button>
+                    <button id="hint-btn" class="btn btn-hint">💡 تلميح</button>
+                </div>
+            </div>
+
+            <!-- Available Atoms -->
+            <div class="atoms-section">
+                <h2>🔬 الذرات المتاحة</h2>
+                <div id="atoms-container" class="atoms-container">
+                    <!-- Atoms will be dynamically added here -->
+                </div>
+                <div class="legend">
+                    <h3>دليل الألوان:</h3>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <div class="atom-preview hydrogen"></div>
+                            <span>الهيدروجين (H)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="atom-preview oxygen"></div>
+                            <span>الأكسجين (O)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="atom-preview carbon"></div>
+                            <span>الكربون (C)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="atom-preview nitrogen"></div>
+                            <span>النيتروجين (N)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Modal -->
+        <div id="feedback-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <div id="feedback-content">
+                    <div class="feedback-icon"></div>
+                    <h2 id="feedback-title"></h2>
+                    <p id="feedback-message"></p>
+                    <button id="next-level-btn" class="btn btn-primary">المستوى التالي</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Panel -->
+        <div class="instructions">
+            <h3>📚 كيف تلعب؟</h3>
+            <ol>
+                <li>اقرأ اسم الجزيء المطلوب تركيبه</li>
+                <li>اسحب الذرات من القسم الأيمن إلى مساحة العمل</li>
+                <li>رتب الذرات لتشكيل الجزيء الصحيح</li>
+                <li>اضغط على "فحص التركيب" للتحقق من إجابتك</li>
+                <li>احصل على نقاط عند التركيب الصحيح</li>
+                <li>استخدم زر "تلميح" إذا احتجت مساعدة</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
