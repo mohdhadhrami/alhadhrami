@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>القطبية الجزيئية وتأثيرها على الخواص الفيزيائية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/3dmol/build/3Dmol-min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__content">
+      <span class="hero__badge">الصف الحادي عشر • كيمياء</span>
+      <h1>القطبية الجزيئية وتأثيرها على الخواص الفيزيائية</h1>
+      <p>
+        منصة تعلم تفاعلية تربط بين قطبية الرابطة وقطبية الجزيء والشكل الهندسي (VSEPR)
+        وتأثير ذلك على الذوبانية ودرجة الغليان.
+      </p>
+      <div class="hero__actions">
+        <button id="fullscreenBtn" class="btn btn--primary">وضع العرض للسبورة</button>
+        <button id="resetViewBtn" class="btn btn--ghost">إعادة ضبط العارض</button>
+      </div>
+    </div>
+    <div class="hero__progress">
+      <div class="progress__meta">
+        <span>تقدّم الدرس</span>
+        <span id="progressValue">0%</span>
+      </div>
+      <div class="progress__bar">
+        <span id="progressBar"></span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="stepper" aria-label="خطوات الدرس">
+    <ol id="stepperList"></ol>
+  </nav>
+
+  <main>
+    <section id="step-1" class="step" data-step="1">
+      <div class="step__header">
+        <h2>الخطوة 1: افتتاح وجذب الانتباه</h2>
+        <span class="step__time">⏱️ 2 دقيقة</span>
+      </div>
+      <p class="step__instruction">شاهد المقطع القصير ولاحظ تفاعل الماء مع المجال الكهربائي.</p>
+      <div class="video-card">
+        <video controls preload="metadata" poster="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=900&auto=format&fit=crop">
+          <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8c/Water_drop_impact_%28slow_motion%29.ogv/Water_drop_impact_%28slow_motion%29.ogv.480p.vp9.webm" type="video/webm" />
+          <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8c/Water_drop_impact_%28slow_motion%29.ogv/Water_drop_impact_%28slow_motion%29.ogv.480p.ogv" type="video/ogg" />
+          متصفحك لا يدعم تشغيل الفيديو.
+        </video>
+        <div class="video-card__question">
+          <strong>سؤال محفّز:</strong> لماذا ينحرف تيار الماء عندما نقرّب منه جسمًا مشحونًا؟
+        </div>
+      </div>
+    </section>
+
+    <section id="step-2" class="step" data-step="2">
+      <div class="step__header">
+        <h2>الخطوة 2: أهداف الدرس</h2>
+        <span class="step__time">⏱️ 1 دقيقة</span>
+      </div>
+      <div class="goals">
+        <article>
+          <h3>ما القطبية الجزيئية؟</h3>
+          <p>تمييز الفرق بين قطبية الرابطة وقطبية الجزيء.</p>
+        </article>
+        <article>
+          <h3>كيف نحددها؟</h3>
+          <p>الاعتماد على فرق السالبية والشكل الهندسي (VSEPR).</p>
+        </article>
+        <article>
+          <h3>كيف تؤثر؟</h3>
+          <p>تفسير الذوبانية ودرجات الغليان بالقطبية.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="step-3" class="step" data-step="3">
+      <div class="step__header">
+        <h2>الخطوة 3: مراجعة سريعة</h2>
+        <span class="step__time">⏱️ 3 دقائق</span>
+      </div>
+      <p class="step__instruction">اطلع على جدول السالبية الكهربائية المختصر ثم أجب السؤال.</p>
+      <div class="review-grid">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>العنصر</th>
+              <th>السالبية الكهربائية (تقريبية)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>F</td><td>4.0</td></tr>
+            <tr><td>O</td><td>3.5</td></tr>
+            <tr><td>N</td><td>3.0</td></tr>
+            <tr><td>C</td><td>2.5</td></tr>
+            <tr><td>H</td><td>2.1</td></tr>
+          </tbody>
+        </table>
+        <div class="quick-question" data-question="electro">
+          <p>كلما زاد فرق السالبية الكهربائية بين ذرتين، فإن الرابطة تكون:</p>
+          <div class="options">
+            <button data-answer="A">أ) أقل قطبية</button>
+            <button data-answer="B">ب) أكثر قطبية</button>
+            <button data-answer="C">ج) أيونية فقط</button>
+          </div>
+          <p class="feedback" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="step-4" class="step" data-step="4">
+      <div class="step__header">
+        <h2>الخطوة 4–5: القطبية والشكل الهندسي</h2>
+        <span class="step__time">⏱️ 8 دقائق</span>
+      </div>
+      <p class="step__instruction">قارن بين جزيئي الماء وثاني أكسيد الكربون ولاحظ اتجاهات العزم.</p>
+
+      <div class="split-view">
+        <div class="viewer-card">
+          <h3>H₂O — منحني (قطبي)</h3>
+          <div id="compareH2O" class="viewer viewer--small"></div>
+        </div>
+        <div class="viewer-card">
+          <h3>CO₂ — خطي (غير قطبي)</h3>
+          <div id="compareCO2" class="viewer viewer--small"></div>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="compareDipoles" checked />
+        إظهار أسهم العزم في المقارنة
+      </label>
+
+      <div class="interactive-lab">
+        <div class="lab__header">
+          <h3>المعمل التفاعلي ثلاثي الأبعاد</h3>
+          <div class="lab__controls">
+            <select id="moleculeSelect" aria-label="اختر جزيء">
+              <option value="H2O">H2O</option>
+              <option value="CO2">CO2</option>
+              <option value="NH3">NH3</option>
+              <option value="CH4">CH4</option>
+              <option value="H2S">H2S</option>
+              <option value="BF3">BF3</option>
+              <option value="SO2">SO2</option>
+              <option value="NF3">NF3</option>
+            </select>
+            <button id="screenshotBtn" class="btn btn--ghost">التقاط لقطة PNG</button>
+          </div>
+        </div>
+        <div class="lab__body">
+          <div id="mainViewer" class="viewer"></div>
+          <div class="lab__panel">
+            <div class="toggle-group">
+              <label class="toggle"><input type="checkbox" id="bondDipoleToggle" checked />إظهار عزوم الروابط</label>
+              <label class="toggle"><input type="checkbox" id="netDipoleToggle" checked />إظهار العزم الكلي</label>
+              <label class="toggle"><input type="checkbox" id="geometryToggle" checked />إظهار الشكل الهندسي</label>
+            </div>
+            <div class="info-card">
+              <h4>الشكل الهندسي</h4>
+              <p id="geometryName">—</p>
+            </div>
+            <div class="info-card">
+              <h4>لماذا هذا الجزيء قطبي؟</h4>
+              <p id="polarityNote">—</p>
+            </div>
+            <div class="info-card">
+              <h4>العزم الكلي</h4>
+              <p id="netDipoleText">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="step-6" class="step" data-step="6">
+      <div class="step__header">
+        <h2>الخطوة 6: نشاط فردي موجّه (NH3)</h2>
+        <span class="step__time">⏱️ 6 دقائق</span>
+      </div>
+      <div class="task-card">
+        <h3>قائمة المهام</h3>
+        <ol class="task-list">
+          <li><label><input type="checkbox" class="task-check" /> افتح المحاكاة داخل الصفحة</label></li>
+          <li><label><input type="checkbox" class="task-check" /> اختر جزيء NH3 من القائمة</label></li>
+          <li><label><input type="checkbox" class="task-check" /> دوّر الجزيء ولاحظ الشكل الهندسي</label></li>
+          <li><label><input type="checkbox" class="task-check" /> حدّد اتجاه العزم الكلي</label></li>
+        </ol>
+        <button id="completeTasksBtn" class="btn btn--primary" disabled>تم</button>
+      </div>
+      <div class="quick-question" data-question="nh3" data-locked="true">
+        <p>NH3 جزيء:</p>
+        <div class="options">
+          <button data-answer="A">أ) غير قطبي لأن الروابط متماثلة</button>
+          <button data-answer="B">ب) قطبي بسبب شكل هرمي غير متماثل</button>
+          <button data-answer="C">ج) أيوني بالكامل</button>
+        </div>
+        <p class="feedback" aria-live="polite">أكمل قائمة المهام أولًا لتفعيل السؤال.</p>
+      </div>
+    </section>
+
+    <section id="step-7" class="step" data-step="7">
+      <div class="step__header">
+        <h2>الخطوة 7: نشاط مجموعات (ورقة عمل رقمية)</h2>
+        <span class="step__time">⏱️ 10 دقائق</span>
+      </div>
+      <p class="step__instruction">املأ الجدول بالتعاون مع مجموعتك ثم احفظ الإجابات.</p>
+      <div class="worksheet">
+        <table class="table" id="worksheetTable">
+          <thead>
+            <tr>
+              <th>الجزيء</th>
+              <th>الشكل الهندسي</th>
+              <th>نوع الروابط</th>
+              <th>القطبية</th>
+              <th>التفسير</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CH4</td>
+              <td><input type="text" data-field="geometry" /></td>
+              <td><input type="text" data-field="bonds" /></td>
+              <td><input type="text" data-field="polarity" /></td>
+              <td><input type="text" data-field="reason" /></td>
+            </tr>
+            <tr>
+              <td>H2S</td>
+              <td><input type="text" data-field="geometry" /></td>
+              <td><input type="text" data-field="bonds" /></td>
+              <td><input type="text" data-field="polarity" /></td>
+              <td><input type="text" data-field="reason" /></td>
+            </tr>
+            <tr>
+              <td>BF3</td>
+              <td><input type="text" data-field="geometry" /></td>
+              <td><input type="text" data-field="bonds" /></td>
+              <td><input type="text" data-field="polarity" /></td>
+              <td><input type="text" data-field="reason" /></td>
+            </tr>
+            <tr>
+              <td>SO2</td>
+              <td><input type="text" data-field="geometry" /></td>
+              <td><input type="text" data-field="bonds" /></td>
+              <td><input type="text" data-field="polarity" /></td>
+              <td><input type="text" data-field="reason" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="worksheet__actions">
+          <button id="saveWorksheetBtn" class="btn btn--primary">حفظ إجابات المجموعة</button>
+          <button id="printWorksheetBtn" class="btn btn--ghost">تصدير PDF / طباعة</button>
+          <span id="worksheetStatus" class="status"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="step-9" class="step" data-step="9">
+      <div class="step__header">
+        <h2>الخطوة 9: ربط القطبية بالخواص الفيزيائية</h2>
+        <span class="step__time">⏱️ 6 دقائق</span>
+      </div>
+      <div class="properties">
+        <div class="properties__rule">قاعدة مهمة: <strong>المثل يذيب المثل</strong></div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>الجزيء</th>
+              <th>درجة الغليان (°C)</th>
+              <th>التفسير المختصر</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>H2O</td>
+              <td>100</td>
+              <td>ترابط هيدروجيني قوي يرفع الغليان.</td>
+            </tr>
+            <tr>
+              <td>H2S</td>
+              <td>-60</td>
+              <td>قوى بينية أضعف مقارنة بالماء.</td>
+            </tr>
+            <tr>
+              <td>CH4</td>
+              <td>-161</td>
+              <td>غير قطبي وقوى تشتت فقط.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="quick-question" data-question="solubility">
+          <p>سؤال تطبيقي: لماذا لا يذوب الزيت في الماء؟</p>
+          <div class="options">
+            <button data-answer="A">لأن الزيت غير قطبي والماء قطبي</button>
+            <button data-answer="B">لأن الزيت أكثر كثافة</button>
+            <button data-answer="C">لأن الزيت يحتوي على شحنات سالبة</button>
+          </div>
+          <p class="feedback" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="step-11" class="step" data-step="11">
+      <div class="step__header">
+        <h2>الخطوة 11: تقويم ختامي سريع</h2>
+        <span class="step__time">⏱️ 4 دقائق</span>
+      </div>
+      <div class="quick-question" data-question="nf3">
+        <p>هل NF3 قطبي أم غير قطبي؟ ولماذا؟</p>
+        <div class="options">
+          <button data-answer="A">غير قطبي لأن الشكل هرمي متماثل</button>
+          <button data-answer="B">قطبي لأن الشكل هرمي غير متماثل</button>
+          <button data-answer="C">غير قطبي لأن جميع الروابط غير قطبية</button>
+        </div>
+        <p class="feedback" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section id="step-12" class="step" data-step="12">
+      <div class="step__header">
+        <h2>الخطوة 12: الواجب</h2>
+        <span class="step__time">⏱️ 5 دقائق</span>
+      </div>
+      <div class="homework">
+        <h3>مهمة ختامية</h3>
+        <ul>
+          <li>اختيار جزيء قطبي وآخر غير قطبي.</li>
+          <li>شرح اتجاه العزم الكلي لكل منهما.</li>
+          <li>إرفاق صور من المحاكاة (التقط لقطات PNG).</li>
+          <li>اكتب مقارنة قصيرة تؤكد العلاقة بين الشكل والقطبية.</li>
+        </ul>
+        <div class="homework__hint">تذكير: استخدم زر <strong>التقاط لقطة PNG</strong> في المعمل التفاعلي.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>صفحة تعليمية تفاعلية • قابلة للنشر على GitHub Pages</p>
+  </footer>
+</body>
+</html>
