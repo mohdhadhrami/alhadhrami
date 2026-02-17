@@ -1,1329 +1,913 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام تسعير شرائح الألمنيوم</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        :root {
-            --primary: #1a237e;
-            --primary-light: #3949ab;
-            --primary-dark: #0d1452;
-            --accent: #ff6f00;
-            --accent-light: #ff8f00;
-            --surface: #ffffff;
-            --surface-alt: #f5f6fa;
-            --border: #d1d5db;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --success: #16a34a;
-            --danger: #dc2626;
-            --warning: #f59e0b;
-            --radius: 8px;
-            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-            background: #eef0f5;
-            color: var(--text);
-            direction: rtl;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .app-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 0;
-            box-shadow: var(--shadow-md);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 24px;
-        }
-
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header-title h1 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .header-logo {
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: var(--accent);
-        }
-
-        .header-meta {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 0.8rem;
-            opacity: 0.85;
-        }
-
-        /* Main Layout */
-        .app-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px 24px;
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 20px;
-        }
-
-        /* Cards */
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .card-header {
-            background: var(--surface-alt);
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-header .icon {
-            width: 24px;
-            height: 24px;
-            background: var(--primary);
-            color: white;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 900;
-        }
-
-        .card-body {
-            padding: 16px;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        /* Form Controls */
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text-light);
-            margin-bottom: 4px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 0.88rem;
-            font-family: inherit;
-            direction: ltr;
-            text-align: right;
-            transition: border-color 0.2s;
-            background: white;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.12);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .input-suffix {
-            position: relative;
-        }
-
-        .input-suffix input {
-            padding-left: 50px;
-        }
-
-        .input-suffix .suffix {
-            position: absolute;
-            left: 1px;
-            top: 1px;
-            bottom: 1px;
-            width: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            color: var(--text-light);
-            background: var(--surface-alt);
-            border-radius: 6px 0 0 6px;
-            border-right: 1px solid var(--border);
-        }
-
-        /* Add Item Section */
-        .add-item-section {
-            background: #f0f4ff;
-            border: 2px dashed var(--primary-light);
-            border-radius: var(--radius);
-            padding: 16px;
-        }
-
-        .add-item-section h3 {
-            font-size: 0.88rem;
-            color: var(--primary);
-            margin-bottom: 12px;
-        }
-
-        .item-form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 20px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--primary);
-        }
-
-        .checkbox-group label {
-            font-size: 0.82rem;
-            font-weight: 600;
-            margin-bottom: 0;
-            cursor: pointer;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-light);
-        }
-
-        .btn-accent {
-            background: var(--accent);
-            color: white;
-        }
-
-        .btn-accent:hover {
-            background: var(--accent-light);
-        }
-
-        .btn-danger {
-            background: transparent;
-            color: var(--danger);
-            padding: 4px 8px;
-            font-size: 0.78rem;
-        }
-
-        .btn-danger:hover {
-            background: rgba(220, 38, 38, 0.08);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #15803d;
-        }
-
-        .btn-block {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .actions-bar {
-            display: flex;
-            gap: 10px;
-            margin-top: 8px;
-        }
-
-        /* Table */
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.82rem;
-        }
-
-        thead th {
-            background: var(--primary);
-            color: white;
-            padding: 10px 12px;
-            text-align: center;
-            font-weight: 600;
-            white-space: nowrap;
-            font-size: 0.78rem;
-        }
-
-        tbody td {
-            padding: 10px 12px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-        }
-
-        tbody tr:nth-child(even) {
-            background: var(--surface-alt);
-        }
-
-        tbody tr:hover {
-            background: #e8eaf6;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-light);
-        }
-
-        .empty-state p {
-            font-size: 0.9rem;
-            margin-top: 8px;
-        }
-
-        /* Summary Cards */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .summary-card {
-            background: var(--surface-alt);
-            border-radius: var(--radius);
-            padding: 14px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .summary-card.highlight {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            border: none;
-        }
-
-        .summary-card.profit {
-            background: linear-gradient(135deg, #16a34a, #22c55e);
-            color: white;
-            border: none;
-        }
-
-        .summary-card .label {
-            font-size: 0.72rem;
-            font-weight: 600;
-            opacity: 0.8;
-            margin-bottom: 4px;
-        }
-
-        .summary-card .value {
-            font-size: 1.15rem;
-            font-weight: 800;
-            direction: ltr;
-        }
-
-        .summary-card .unit {
-            font-size: 0.68rem;
-            opacity: 0.7;
-            margin-top: 2px;
-        }
-
-        /* Live Preview */
-        .live-preview {
-            background: #fffde7;
-            border: 1px solid #fdd835;
-            border-radius: var(--radius);
-            padding: 12px;
-            margin-top: 12px;
-        }
-
-        .live-preview h4 {
-            font-size: 0.78rem;
-            color: #f57f17;
-            margin-bottom: 8px;
-        }
-
-        .preview-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-        }
-
-        .preview-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.76rem;
-            padding: 3px 0;
-        }
-
-        .preview-item .label {
-            color: var(--text-light);
-        }
-
-        .preview-item .val {
-            font-weight: 700;
-            direction: ltr;
-        }
-
-        /* Error Message */
-        .error-msg {
-            background: #fef2f2;
-            color: var(--danger);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.78rem;
-            margin-bottom: 10px;
-            display: none;
-            border: 1px solid #fecaca;
-        }
-
-        .error-msg.show {
-            display: block;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .app-container {
-                grid-template-columns: 1fr;
-                padding: 12px;
-            }
-
-            .item-form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media print {
-            .app-header, .sidebar, .actions-bar, .btn, .add-item-section {
-                display: none !important;
-            }
-        }
-
-        /* Number badge */
-        .row-num {
-            width: 24px;
-            height: 24px;
-            background: var(--primary-light);
-            color: white;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-
-        /* Status badge */
-        .badge {
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.72rem;
-            font-weight: 600;
-        }
-
-        .badge-painted {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .badge-plain {
-            background: #f3f4f6;
-            color: #6b7280;
-        }
-
-        /* Tooltip */
-        .info-tip {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            background: var(--border);
-            color: var(--text-light);
-            border-radius: 50%;
-            text-align: center;
-            font-size: 0.65rem;
-            line-height: 16px;
-            cursor: help;
-            margin-right: 4px;
-        }
-
-        /* Footer */
-        .app-footer {
-            text-align: center;
-            padding: 16px;
-            color: var(--text-light);
-            font-size: 0.75rem;
-            margin-top: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام تسعير شرائح الألمنيوم</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --primary: #0f172a;
+  --primary-mid: #1e293b;
+  --primary-light: #334155;
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --blue: #3b82f6;
+  --blue-dark: #2563eb;
+  --green: #10b981;
+  --green-dark: #059669;
+  --red: #ef4444;
+  --surface: #ffffff;
+  --surface-alt: #f8fafc;
+  --bg: #f1f5f9;
+  --border: #e2e8f0;
+  --border-dark: #cbd5e1;
+  --text: #0f172a;
+  --text-mid: #475569;
+  --text-light: #94a3b8;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);direction:rtl;min-height:100vh;font-size:14px}
+
+/* ===== HEADER ===== */
+.header{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-mid) 100%);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-lg)}
+.header-inner{max-width:1440px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between}
+.header-brand{display:flex;align-items:center;gap:12px}
+.header-logo{width:42px;height:42px;background:rgba(255,255,255,0.1);border:2px solid var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:var(--accent)}
+.header h1{font-size:1.2rem;font-weight:700}
+.header-sub{font-size:0.68rem;opacity:0.6;margin-top:1px}
+.header-date{font-size:0.75rem;opacity:0.7}
+
+/* ===== TABS ===== */
+.tabs-bar{background:var(--primary-mid);border-bottom:2px solid var(--accent)}
+.tabs-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;gap:0}
+.tab-btn{padding:10px 28px;background:transparent;border:none;color:rgba(255,255,255,0.5);font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;margin-bottom:-2px}
+.tab-btn:hover{color:rgba(255,255,255,0.8)}
+.tab-btn.active{color:#fff;border-bottom-color:var(--accent);background:rgba(255,255,255,0.05)}
+
+/* ===== LAYOUT ===== */
+.page{display:none}
+.page.active{display:block}
+.container{max-width:1440px;margin:0 auto;padding:20px 24px}
+.grid-main{display:grid;grid-template-columns:320px 1fr;gap:20px}
+.grid-full{display:grid;grid-template-columns:360px 1fr;gap:20px}
+
+/* ===== CARDS ===== */
+.card{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.card-head{padding:10px 16px;font-weight:700;font-size:0.82rem;color:var(--primary);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--surface-alt)}
+.card-head .ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:900;color:#fff;flex-shrink:0}
+.ic-blue{background:var(--blue)}
+.ic-amber{background:var(--accent)}
+.ic-green{background:var(--green)}
+.ic-dark{background:var(--primary)}
+.ic-red{background:var(--red)}
+.card-body{padding:14px 16px}
+
+/* ===== FORMS ===== */
+.fg{margin-bottom:10px}
+.fg:last-child{margin-bottom:0}
+.fg label{display:block;font-size:0.73rem;font-weight:600;color:var(--text-mid);margin-bottom:3px}
+.fg input,.fg select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;font-family:inherit;direction:ltr;text-align:right;transition:all 0.2s;background:#fff}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.inp-wrap{position:relative}
+.inp-wrap input{padding-left:52px}
+.inp-wrap .unit{position:absolute;left:1px;top:1px;bottom:1px;width:50px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:var(--text-mid);background:var(--surface-alt);border-radius:6px 0 0 6px;border-right:1px solid var(--border);pointer-events:none}
+
+/* Toggle Switch */
+.toggle-wrap{display:flex;align-items:center;gap:10px;padding:8px 0}
+.toggle-label{font-size:0.76rem;font-weight:600;color:var(--text-mid);cursor:pointer}
+.toggle-label.active{color:var(--primary);font-weight:700}
+.toggle-track{width:44px;height:24px;background:var(--blue);border-radius:12px;position:relative;cursor:pointer;transition:background 0.3s;flex-shrink:0}
+.toggle-track.right{background:var(--green)}
+.toggle-knob{width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px;transition:all 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toggle-track.right .toggle-knob{right:auto;left:2px}
+
+/* Checkbox */
+.chk{display:flex;align-items:center;gap:6px;cursor:pointer}
+.chk input{width:16px;height:16px;accent-color:var(--blue)}
+.chk label{font-size:0.8rem;font-weight:600;cursor:pointer}
+
+/* ===== BUTTONS ===== */
+.btn{padding:8px 20px;border:none;border-radius:6px;font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:var(--blue-dark)}
+.btn-amber{background:var(--accent);color:#fff}
+.btn-amber:hover{background:var(--accent-hover)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:var(--green-dark)}
+.btn-ghost{background:transparent;color:var(--red);padding:4px 10px}
+.btn-ghost:hover{background:rgba(239,68,68,0.08)}
+.btn-block{width:100%;justify-content:center}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+
+/* ===== TABLE ===== */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.78rem}
+thead th{background:var(--primary);color:#fff;padding:9px 10px;text-align:center;font-weight:600;white-space:nowrap;font-size:0.73rem}
+tbody td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface-alt)}
+tbody tr:hover{background:#e0f2fe}
+
+.badge{padding:2px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;display:inline-block}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-gray{background:#f1f5f9;color:#64748b}
+.row-n{width:22px;height:22px;background:var(--blue);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700}
+
+.empty-state{text-align:center;padding:36px 20px;color:var(--text-light)}
+.empty-state .big{font-size:2rem;opacity:0.2;margin-bottom:6px}
+.empty-state p{font-size:0.82rem}
+
+/* ===== SUMMARY ===== */
+.summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:16px}
+.s-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+.s-card .s-label{font-size:0.68rem;font-weight:600;color:var(--text-mid);margin-bottom:3px}
+.s-card .s-val{font-size:1.1rem;font-weight:800;direction:ltr}
+.s-card .s-unit{font-size:0.64rem;color:var(--text-light);margin-top:1px}
+.s-card.s-blue{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;border:none}
+.s-card.s-blue .s-label,.s-card.s-blue .s-unit{color:rgba(255,255,255,0.8)}
+.s-card.s-green{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none}
+.s-card.s-green .s-label,.s-card.s-green .s-unit{color:rgba(255,255,255,0.8)}
+.s-card.s-dark{background:linear-gradient(135deg,var(--primary),var(--primary-mid));color:#fff;border:none}
+.s-card.s-dark .s-label,.s-card.s-dark .s-unit{color:rgba(255,255,255,0.8)}
+
+/* ===== PREVIEW ===== */
+.preview-box{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius);padding:10px 12px;margin-top:10px}
+.preview-box h4{font-size:0.73rem;color:var(--accent-hover);margin-bottom:6px;font-weight:700}
+.prev-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.prev-item{display:flex;justify-content:space-between;font-size:0.72rem;padding:2px 0}
+.prev-item .pl{color:var(--text-mid)}
+.prev-item .pv{font-weight:700;direction:ltr}
+
+/* ===== ERROR ===== */
+.err{background:#fef2f2;color:var(--red);padding:7px 12px;border-radius:6px;font-size:0.76rem;border:1px solid #fecaca;display:none;margin-bottom:8px}
+.err.show{display:block}
+
+/* ===== WEIGHT CALCULATOR ===== */
+.calc-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.calc-res-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.calc-res-card .cr-icon{font-size:1.5rem;margin-bottom:6px;opacity:0.15}
+.calc-res-card .cr-label{font-size:0.72rem;font-weight:600;color:var(--text-mid);margin-bottom:4px}
+.calc-res-card .cr-val{font-size:1.3rem;font-weight:800;color:var(--primary);direction:ltr}
+.calc-res-card .cr-unit{font-size:0.68rem;color:var(--text-light);margin-top:2px}
+.calc-res-card.cr-accent{border-color:var(--accent);background:#fffbeb}
+.calc-res-card.cr-accent .cr-val{color:var(--accent-hover)}
+.calc-res-card.cr-blue{border-color:var(--blue);background:#eff6ff}
+.calc-res-card.cr-blue .cr-val{color:var(--blue-dark)}
+.calc-res-card.cr-green{border-color:var(--green);background:#ecfdf5}
+.calc-res-card.cr-green .cr-val{color:var(--green-dark)}
+
+/* ===== MODE INDICATOR ===== */
+.mode-indicator{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;margin-right:8px}
+.mode-indicator.mi-blue{background:rgba(59,130,246,0.1);color:var(--blue-dark)}
+.mode-indicator.mi-green{background:rgba(16,185,129,0.1);color:var(--green-dark)}
+
+/* ===== REFERENCE CARD ===== */
+.ref-table{width:100%;font-size:0.74rem}
+.ref-table td{padding:4px 0;border-bottom:1px solid var(--border)}
+.ref-table td:first-child{color:var(--text-mid);font-weight:600}
+.ref-table td:last-child{direction:ltr;text-align:left;font-weight:700}
+
+/* ===== FOOTER ===== */
+.footer{text-align:center;padding:14px;color:var(--text-light);font-size:0.72rem;margin-top:16px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:960px){
+  .grid-main,.grid-full{grid-template-columns:1fr}
+  .summary-row{grid-template-columns:repeat(2,1fr)}
+  .calc-results{grid-template-columns:repeat(2,1fr)}
+  .container{padding:12px}
+  .tabs-inner{padding:0 12px}
+}
+@media(max-width:480px){
+  .summary-row{grid-template-columns:1fr}
+  .row2,.row3{grid-template-columns:1fr}
+  .header h1{font-size:1rem}
+}
+</style>
 </head>
 <body>
 
-<!-- Header -->
-<header class="app-header">
-    <div class="header-content">
-        <div class="header-title">
-            <div class="header-logo">AL</div>
-            <div>
-                <h1>نظام تسعير شرائح الألمنيوم</h1>
-                <div style="font-size: 0.72rem; opacity: 0.7; margin-top: 2px;">Aluminum Strip Pricing System</div>
-            </div>
-        </div>
-        <div class="header-meta">
-            <span id="currentDate"></span>
-        </div>
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-logo">AL</div>
+      <div>
+        <h1>نظام تسعير شرائح الألمنيوم</h1>
+        <div class="header-sub">Aluminum Strip Pricing System</div>
+      </div>
     </div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
 </header>
 
-<!-- Main Content -->
-<div class="app-container">
+<!-- ===== TABS ===== -->
+<nav class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab-btn active" onclick="switchTab('pricing')">حاسبة التسعير وعروض الأسعار</button>
+    <button class="tab-btn" onclick="switchTab('weight')">حاسبة تحويل الوزن</button>
+  </div>
+</nav>
 
-    <!-- Sidebar: Parameters -->
-    <aside class="sidebar">
+<!-- =============================================== -->
+<!-- PAGE 1: PRICING CALCULATOR                      -->
+<!-- =============================================== -->
+<div class="page active" id="page-pricing">
+  <div class="container">
+    <div class="grid-main">
+
+      <!-- SIDEBAR -->
+      <aside style="display:flex;flex-direction:column;gap:14px">
 
         <!-- Global Parameters -->
         <div class="card">
-            <div class="card-header">
-                <div class="icon">$</div>
-                المعطيات العامة
+          <div class="card-head"><div class="ic ic-blue">$</div>المعطيات العامة</div>
+          <div class="card-body">
+            <div class="fg">
+              <label>سعر بورصة LME</label>
+              <div class="inp-wrap"><input type="number" id="p_lme" value="2300" min="0" step="1"><span class="unit">$/طن</span></div>
             </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label>سعر بورصة LME <span class="info-tip" title="سعر طن الألمنيوم في بورصة لندن للمعادن">?</span></label>
-                    <div class="input-suffix">
-                        <input type="number" id="lme" value="2300" min="0" step="1">
-                        <span class="suffix">$/طن</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>المصنعية</label>
-                    <div class="input-suffix">
-                        <input type="number" id="manufacturing" value="500" min="0" step="1">
-                        <span class="suffix">$/طن</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>الصبغ</label>
-                    <div class="input-suffix">
-                        <input type="number" id="painting" value="300" min="0" step="1">
-                        <span class="suffix">ر.ع/طن</span>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>سعر الصرف</label>
-                        <div class="input-suffix">
-                            <input type="number" id="exchangeRate" value="0.385" min="0" step="0.001">
-                            <span class="suffix">ر.ع/$</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>نسبة الربح</label>
-                        <div class="input-suffix">
-                            <input type="number" id="profitMargin" value="15" min="0" step="0.1">
-                            <span class="suffix">%</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>ضريبة القيمة المضافة</label>
-                    <div class="input-suffix">
-                        <input type="number" id="vat" value="5" min="0" step="0.1">
-                        <span class="suffix">%</span>
-                    </div>
-                </div>
+            <div class="fg">
+              <label>المصنعية</label>
+              <div class="inp-wrap"><input type="number" id="p_mfg" value="500" min="0" step="1"><span class="unit">$/طن</span></div>
             </div>
+            <div class="fg">
+              <label>الصبغ</label>
+              <div class="inp-wrap"><input type="number" id="p_paint" value="300" min="0" step="1"><span class="unit">ر.ع/طن</span></div>
+            </div>
+            <div class="row2">
+              <div class="fg">
+                <label>سعر الصرف</label>
+                <div class="inp-wrap"><input type="number" id="p_rate" value="0.385" min="0" step="0.001"><span class="unit">ر.ع/$</span></div>
+              </div>
+              <div class="fg">
+                <label>نسبة الربح</label>
+                <div class="inp-wrap"><input type="number" id="p_profit" value="15" min="0" step="0.1"><span class="unit">%</span></div>
+              </div>
+            </div>
+            <div class="fg">
+              <label>ضريبة القيمة المضافة</label>
+              <div class="inp-wrap"><input type="number" id="p_vat" value="5" min="0" step="0.1"><span class="unit">%</span></div>
+            </div>
+
+            <!-- VAT MODE TOGGLE -->
+            <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px">
+              <label style="font-size:0.73rem;font-weight:600;color:var(--text-mid);margin-bottom:6px;display:block">وضع الضريبة</label>
+              <div class="toggle-wrap">
+                <span class="toggle-label active" id="tl_acc">محاسبي</span>
+                <div class="toggle-track" id="vatToggle" onclick="toggleVatMode()">
+                  <div class="toggle-knob"></div>
+                </div>
+                <span class="toggle-label" id="tl_ind">صناعي</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Add Item -->
         <div class="card">
-            <div class="card-header">
-                <div class="icon">+</div>
-                إضافة بند جديد
+          <div class="card-head"><div class="ic ic-amber">+</div>إضافة بند جديد</div>
+          <div class="card-body">
+            <div id="itemErr" class="err"></div>
+            <div class="fg">
+              <label>السماكة</label>
+              <select id="i_thick">
+                <option value="1.1">1.1 ملم — 0.630 كجم/م</option>
+                <option value="1.5">1.5 ملم — 0.839 كجم/م</option>
+              </select>
             </div>
-            <div class="card-body">
-                <div id="itemError" class="error-msg"></div>
-                <div class="form-group">
-                    <label>السماكة</label>
-                    <select id="itemThickness">
-                        <option value="1.1">1.1 ملم (0.630 كجم/م)</option>
-                        <option value="1.5">1.5 ملم (0.839 كجم/م)</option>
-                    </select>
+            <div class="row2">
+              <div class="fg">
+                <label>الطول (متر)</label>
+                <div class="inp-wrap"><input type="number" id="i_len" min="0.001" step="0.001" placeholder="0.000"><span class="unit">متر</span></div>
+              </div>
+              <div class="fg">
+                <div class="chk" style="margin-top:18px">
+                  <input type="checkbox" id="i_paint" checked>
+                  <label for="i_paint">مصبوغ</label>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>الطول</label>
-                        <div class="input-suffix">
-                            <input type="number" id="itemLength" value="" min="0.001" step="0.001" placeholder="0.000">
-                            <span class="suffix">متر</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="itemPainted" checked>
-                            <label for="itemPainted">مصبوغ</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Live Preview -->
-                <div class="live-preview" id="livePreview" style="display:none;">
-                    <h4>معاينة مباشرة</h4>
-                    <div class="preview-grid">
-                        <div class="preview-item">
-                            <span class="label">تكلفة القطعة:</span>
-                            <span class="val" id="prevCost">-</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="label">سعر البيع:</span>
-                            <span class="val" id="prevSell">-</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="label">السعر النهائي:</span>
-                            <span class="val" id="prevFinal">-</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="label">الربح:</span>
-                            <span class="val" id="prevProfit">-</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="label">سعر المتر:</span>
-                            <span class="val" id="prevMeter">-</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="label">سعر م&#178;:</span>
-                            <span class="val" id="prevSqm">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="actions-bar">
-                    <button class="btn btn-primary btn-block" onclick="addItem()">
-                        إضافة البند
-                    </button>
-                </div>
+              </div>
             </div>
+
+            <!-- Live Preview -->
+            <div class="preview-box" id="livePreview" style="display:none">
+              <h4>معاينة مباشرة</h4>
+              <div class="prev-grid">
+                <div class="prev-item"><span class="pl">تكلفة القطعة:</span><span class="pv" id="pv_cost">-</span></div>
+                <div class="prev-item"><span class="pl">سعر البيع:</span><span class="pv" id="pv_sell">-</span></div>
+                <div class="prev-item"><span class="pl">السعر النهائي:</span><span class="pv" id="pv_final">-</span></div>
+                <div class="prev-item"><span class="pl">الربح:</span><span class="pv" id="pv_profit">-</span></div>
+                <div class="prev-item"><span class="pl">سعر المتر:</span><span class="pv" id="pv_meter">-</span></div>
+                <div class="prev-item"><span class="pl">سعر م&#178;:</span><span class="pv" id="pv_sqm">-</span></div>
+              </div>
+            </div>
+
+            <button class="btn btn-blue btn-block" onclick="addItem()" style="margin-top:10px">إضافة البند</button>
+          </div>
         </div>
 
         <!-- Reference -->
         <div class="card">
-            <div class="card-header">
-                <div class="icon">i</div>
-                مرجع سريع
-            </div>
-            <div class="card-body" style="font-size: 0.76rem; color: var(--text-light);">
-                <p style="margin-bottom: 6px;"><strong>الأوزان:</strong></p>
-                <p>سمك 1.1 ملم = 0.630 كجم/م</p>
-                <p>سمك 1.5 ملم = 0.839 كجم/م</p>
-                <p style="margin-top: 8px;"><strong>ارتفاع الشريحة:</strong> 7.6 سم</p>
-                <p><strong>1 م&#178; = 13 م.ط</strong></p>
-            </div>
+          <div class="card-head"><div class="ic ic-dark">i</div>مرجع سريع</div>
+          <div class="card-body">
+            <table class="ref-table">
+              <tr><td>سمك 1.1 ملم</td><td>0.630 كجم/م</td></tr>
+              <tr><td>سمك 1.5 ملم</td><td>0.839 كجم/م</td></tr>
+              <tr><td>ارتفاع الشريحة</td><td>7.6 سم</td></tr>
+              <tr><td>1 م&#178;</td><td>= 13 م.ط</td></tr>
+            </table>
+          </div>
         </div>
-    </aside>
+      </aside>
 
-    <!-- Main Content Area -->
-    <main>
+      <!-- MAIN AREA -->
+      <main style="display:flex;flex-direction:column;gap:16px">
+
         <!-- Items Table -->
         <div class="card">
-            <div class="card-header" style="justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div class="icon">#</div>
-                    جدول البنود
-                    <span id="itemCount" style="font-size: 0.72rem; opacity: 0.7;">(0 بنود)</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-accent" onclick="exportPDF()" id="btnPdf" style="font-size:0.78rem; padding: 6px 14px;" disabled>
-                        تصدير PDF
-                    </button>
-                    <button class="btn btn-danger" onclick="clearAll()" style="font-size:0.78rem;">
-                        مسح الكل
-                    </button>
-                </div>
+          <div class="card-head" style="justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="ic ic-dark">#</div>
+              جدول البنود
+              <span id="itemCount" style="font-size:0.7rem;opacity:0.6">(0)</span>
+              <span class="mode-indicator mi-blue" id="modeTag">محاسبي</span>
             </div>
-            <div class="card-body" style="padding: 0;">
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>السماكة (ملم)</th>
-                                <th>الحالة</th>
-                                <th>الطول (م)</th>
-                                <th>تكلفة القطعة</th>
-                                <th>سعر البيع</th>
-                                <th>السعر النهائي</th>
-                                <th>الربح</th>
-                                <th>سعر المتر</th>
-                                <th>سعر م&#178;</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemsBody">
-                        </tbody>
-                    </table>
-                    <div class="empty-state" id="emptyState">
-                        <p style="font-size: 1.5rem; opacity: 0.3;">&#9776;</p>
-                        <p>لم يتم إضافة أي بنود بعد</p>
-                        <p style="font-size: 0.76rem; margin-top: 4px;">أضف بند من القائمة الجانبية لبدء التسعير</p>
-                    </div>
-                </div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-amber" onclick="exportPDF()" id="btnPdf" disabled style="font-size:0.76rem;padding:6px 14px">تصدير PDF</button>
+              <button class="btn btn-ghost" onclick="clearAll()" style="font-size:0.76rem">مسح الكل</button>
             </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>السماكة</th>
+                    <th>الحالة</th>
+                    <th>الطول (م)</th>
+                    <th>تكلفة القطعة</th>
+                    <th>سعر البيع</th>
+                    <th>السعر النهائي</th>
+                    <th>الربح</th>
+                    <th>سعر المتر</th>
+                    <th>سعر م&#178;</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tBody"></tbody>
+              </table>
+              <div class="empty-state" id="emptyState">
+                <div class="big">&#9783;</div>
+                <p>لا توجد بنود — أضف بنداً من القائمة الجانبية</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Summary -->
-        <div id="summarySection" style="display:none;">
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="label">إجمالي التكلفة</div>
-                    <div class="value" id="totalCost">0.000</div>
-                    <div class="unit">ر.ع</div>
-                </div>
-                <div class="summary-card highlight">
-                    <div class="label">إجمالي البيع (قبل الضريبة)</div>
-                    <div class="value" id="totalSell">0.000</div>
-                    <div class="unit">ر.ع</div>
-                </div>
-                <div class="summary-card highlight">
-                    <div class="label">إجمالي البيع (بعد الضريبة)</div>
-                    <div class="value" id="totalFinal">0.000</div>
-                    <div class="unit">ر.ع</div>
-                </div>
-                <div class="summary-card profit">
-                    <div class="label">إجمالي الربح</div>
-                    <div class="value" id="totalProfit">0.000</div>
-                    <div class="unit">ر.ع</div>
-                </div>
-                <div class="summary-card">
-                    <div class="label">متوسط سعر المتر</div>
-                    <div class="value" id="avgMeter">0.000</div>
-                    <div class="unit">ر.ع/م</div>
-                </div>
-                <div class="summary-card">
-                    <div class="label">متوسط سعر المتر المربع</div>
-                    <div class="value" id="avgSqm">0.000</div>
-                    <div class="unit">ر.ع/م&#178;</div>
-                </div>
-            </div>
+        <div id="summarySection" style="display:none">
+          <div class="summary-row">
+            <div class="s-card"><div class="s-label">إجمالي التكلفة</div><div class="s-val" id="s_cost">0.000</div><div class="s-unit">ر.ع</div></div>
+            <div class="s-card s-blue"><div class="s-label">إجمالي البيع</div><div class="s-val" id="s_sell">0.000</div><div class="s-unit">ر.ع</div></div>
+            <div class="s-card s-dark"><div class="s-label">إجمالي البيع النهائي</div><div class="s-val" id="s_final">0.000</div><div class="s-unit">ر.ع</div></div>
+            <div class="s-card s-green"><div class="s-label">إجمالي الربح</div><div class="s-val" id="s_profit">0.000</div><div class="s-unit">ر.ع</div></div>
+            <div class="s-card"><div class="s-label">متوسط سعر المتر</div><div class="s-val" id="s_meter">0.000</div><div class="s-unit">ر.ع/م</div></div>
+            <div class="s-card"><div class="s-label">متوسط سعر م&#178;</div><div class="s-val" id="s_sqm">0.000</div><div class="s-unit">ر.ع/م&#178;</div></div>
+          </div>
         </div>
-    </main>
+      </main>
+    </div>
+  </div>
 </div>
 
-<!-- Footer -->
-<footer class="app-footer">
-    نظام تسعير شرائح الألمنيوم &mdash; يعمل بالكامل داخل المتصفح بدون اتصال بالإنترنت
+<!-- =============================================== -->
+<!-- PAGE 2: WEIGHT CALCULATOR                       -->
+<!-- =============================================== -->
+<div class="page" id="page-weight">
+  <div class="container">
+    <div class="grid-full">
+
+      <!-- Weight Input -->
+      <aside>
+        <div class="card">
+          <div class="card-head"><div class="ic ic-green">&#9878;</div>حاسبة تحويل الوزن</div>
+          <div class="card-body">
+            <p style="font-size:0.76rem;color:var(--text-mid);margin-bottom:12px;line-height:1.6">
+              حوّل الوزن بالكيلوجرام إلى أطوال وعدد قطع مع حساب التكلفة بناءً على المعطيات العامة في حاسبة التسعير.
+            </p>
+            <div class="fg">
+              <label>الوزن (كيلوجرام)</label>
+              <div class="inp-wrap"><input type="number" id="w_kg" value="" min="0" step="0.1" placeholder="أدخل الوزن"><span class="unit">كجم</span></div>
+            </div>
+            <div class="fg">
+              <label>السماكة</label>
+              <select id="w_thick">
+                <option value="1.1">1.1 ملم — 0.630 كجم/م</option>
+                <option value="1.5">1.5 ملم — 0.839 كجم/م</option>
+              </select>
+            </div>
+            <div class="row2">
+              <div class="fg">
+                <label>طول الشريحة (متر)</label>
+                <div class="inp-wrap"><input type="number" id="w_plen" value="" min="0.001" step="0.001" placeholder="0.000"><span class="unit">متر</span></div>
+              </div>
+              <div class="fg">
+                <div class="chk" style="margin-top:18px">
+                  <input type="checkbox" id="w_paint" checked>
+                  <label for="w_paint">مصبوغ</label>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-green btn-block" onclick="calcWeight()" style="margin-top:10px">حساب</button>
+          </div>
+        </div>
+
+        <!-- Quick params reference -->
+        <div class="card" style="margin-top:14px">
+          <div class="card-head"><div class="ic ic-blue">$</div>المعطيات الحالية</div>
+          <div class="card-body" id="wParamsRef">
+            <p style="font-size:0.76rem;color:var(--text-mid)">المعطيات تؤخذ تلقائياً من حاسبة التسعير</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Weight Results -->
+      <main>
+        <div class="card">
+          <div class="card-head"><div class="ic ic-green">&#9776;</div>نتائج التحويل</div>
+          <div class="card-body">
+            <div id="wEmpty" class="empty-state">
+              <div class="big">&#9878;</div>
+              <p>أدخل الوزن والبيانات ثم اضغط "حساب" لعرض النتائج</p>
+            </div>
+            <div id="wResults" style="display:none">
+              <div class="calc-results">
+                <div class="calc-res-card">
+                  <div class="cr-label">إجمالي الطول</div>
+                  <div class="cr-val" id="wr_len">0.000</div>
+                  <div class="cr-unit">متر</div>
+                </div>
+                <div class="calc-res-card cr-accent">
+                  <div class="cr-label">عدد القطع التقريبي</div>
+                  <div class="cr-val" id="wr_pcs">0</div>
+                  <div class="cr-unit">قطعة</div>
+                </div>
+                <div class="calc-res-card cr-blue">
+                  <div class="cr-label">تكلفة المتر</div>
+                  <div class="cr-val" id="wr_cpm">0.000</div>
+                  <div class="cr-unit">ر.ع/م</div>
+                </div>
+                <div class="calc-res-card cr-blue">
+                  <div class="cr-label">تكلفة المتر المربع</div>
+                  <div class="cr-val" id="wr_cpsqm">0.000</div>
+                  <div class="cr-unit">ر.ع/م&#178;</div>
+                </div>
+                <div class="calc-res-card cr-green">
+                  <div class="cr-label">تكلفة الشريحة الواحدة</div>
+                  <div class="cr-val" id="wr_cpp">0.000</div>
+                  <div class="cr-unit">ر.ع</div>
+                </div>
+                <div class="calc-res-card" style="border-color:var(--primary);background:#f0f2ff">
+                  <div class="cr-label">إجمالي التكلفة</div>
+                  <div class="cr-val" id="wr_total" style="color:var(--primary)">0.000</div>
+                  <div class="cr-unit">ر.ع</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  نظام تسعير شرائح الألمنيوم — يعمل بالكامل داخل المتصفح بدون اتصال بالإنترنت
 </footer>
 
+<!-- ===== JAVASCRIPT ===== -->
 <script>
-(function() {
-    'use strict';
-
-    // ===========================
-    // Constants
-    // ===========================
-    const WEIGHT_MAP = {
-        '1.1': 0.63,
-        '1.5': 0.839
-    };
-    const SQM_FACTOR = 13; // 1 m² = 13 linear meters
-
-    // ===========================
-    // State
-    // ===========================
-    let items = [];
-    let nextId = 1;
-
-    // ===========================
-    // DOM References
-    // ===========================
-    const $ = id => document.getElementById(id);
-
-    const inputs = {
-        lme: $('lme'),
-        manufacturing: $('manufacturing'),
-        painting: $('painting'),
-        exchangeRate: $('exchangeRate'),
-        profitMargin: $('profitMargin'),
-        vat: $('vat')
-    };
-
-    const itemInputs = {
-        thickness: $('itemThickness'),
-        length: $('itemLength'),
-        painted: $('itemPainted')
-    };
-
-    // ===========================
-    // Utility
-    // ===========================
-    function fmt(n) {
-        if (typeof n !== 'number' || isNaN(n) || !isFinite(n)) return '0.000';
-        return n.toFixed(3);
-    }
-
-    function getParams() {
-        return {
-            lme: parseFloat(inputs.lme.value) || 0,
-            manufacturing: parseFloat(inputs.manufacturing.value) || 0,
-            painting: parseFloat(inputs.painting.value) || 0,
-            exchangeRate: parseFloat(inputs.exchangeRate.value) || 0,
-            profitMargin: parseFloat(inputs.profitMargin.value) || 0,
-            vat: parseFloat(inputs.vat.value) || 0
-        };
-    }
-
-    // ===========================
-    // Core Calculation
-    // ===========================
-    function calculate(thickness, length, painted) {
-        const p = getParams();
-        const weight = WEIGHT_MAP[String(thickness)] || 0;
-
-        if (length <= 0 || weight <= 0) return null;
-
-        // Per meter costs
-        const metalPerMeter = (p.lme / 1000) * weight * p.exchangeRate;
-        const mfgPerMeter = (p.manufacturing / 1000) * weight * p.exchangeRate;
-        const paintPerMeter = painted ? (p.painting / 1000) * weight : 0;
-
-        const costPerMeter = metalPerMeter + mfgPerMeter + paintPerMeter;
-
-        // Per piece
-        const costPiece = costPerMeter * length;
-
-        // Sell before VAT
-        const sellBeforeVat = costPiece * (1 + p.profitMargin / 100);
-
-        // Final price with VAT
-        const finalPrice = sellBeforeVat * (1 + p.vat / 100);
-
-        // Profit
-        const profit = sellBeforeVat - costPiece;
-
-        // Per meter sell price (before VAT)
-        const pricePerMeter = length > 0 ? sellBeforeVat / length : 0;
-
-        // Per sqm
-        const pricePerSqm = pricePerMeter * SQM_FACTOR;
-
-        return {
-            metalPerMeter,
-            mfgPerMeter,
-            paintPerMeter,
-            costPerMeter,
-            costPiece,
-            sellBeforeVat,
-            finalPrice,
-            profit,
-            pricePerMeter,
-            pricePerSqm
-        };
-    }
-
-    // ===========================
-    // Live Preview
-    // ===========================
-    function updatePreview() {
-        const thickness = itemInputs.thickness.value;
-        const length = parseFloat(itemInputs.length.value) || 0;
-        const painted = itemInputs.painted.checked;
-        const preview = $('livePreview');
-
-        if (length <= 0) {
-            preview.style.display = 'none';
-            return;
-        }
-
-        const calc = calculate(thickness, length, painted);
-        if (!calc) {
-            preview.style.display = 'none';
-            return;
-        }
-
-        preview.style.display = 'block';
-        $('prevCost').textContent = fmt(calc.costPiece) + ' ر.ع';
-        $('prevSell').textContent = fmt(calc.sellBeforeVat) + ' ر.ع';
-        $('prevFinal').textContent = fmt(calc.finalPrice) + ' ر.ع';
-        $('prevProfit').textContent = fmt(calc.profit) + ' ر.ع';
-        $('prevMeter').textContent = fmt(calc.pricePerMeter) + ' ر.ع';
-        $('prevSqm').textContent = fmt(calc.pricePerSqm) + ' ر.ع';
-    }
-
-    // ===========================
-    // Add Item
-    // ===========================
-    window.addItem = function() {
-        const errEl = $('itemError');
-        errEl.classList.remove('show');
-
-        const thickness = itemInputs.thickness.value;
-        const length = parseFloat(itemInputs.length.value);
-        const painted = itemInputs.painted.checked;
-
-        // Validation
-        if (!length || length <= 0) {
-            errEl.textContent = 'يرجى إدخال طول صحيح أكبر من صفر';
-            errEl.classList.add('show');
-            return;
-        }
-
-        const calc = calculate(thickness, length, painted);
-        if (!calc) {
-            errEl.textContent = 'خطأ في الحساب. تحقق من المعطيات العامة.';
-            errEl.classList.add('show');
-            return;
-        }
-
-        items.push({
-            id: nextId++,
-            thickness: parseFloat(thickness),
-            length,
-            painted,
-            calc
-        });
-
-        // Clear length input
-        itemInputs.length.value = '';
-        $('livePreview').style.display = 'none';
-
-        renderTable();
-        updateSummary();
-    };
-
-    // ===========================
-    // Remove Item
-    // ===========================
-    window.removeItem = function(id) {
-        items = items.filter(i => i.id !== id);
-        renderTable();
-        updateSummary();
-    };
-
-    // ===========================
-    // Clear All
-    // ===========================
-    window.clearAll = function() {
-        if (items.length === 0) return;
-        if (!confirm('هل أنت متأكد من مسح جميع البنود؟')) return;
-        items = [];
-        renderTable();
-        updateSummary();
-    };
-
-    // ===========================
-    // Recalculate All Items
-    // ===========================
-    function recalculateAll() {
-        items.forEach(item => {
-            item.calc = calculate(item.thickness, item.length, item.painted);
-        });
-        renderTable();
-        updateSummary();
-        updatePreview();
-    }
-
-    // ===========================
-    // Render Table
-    // ===========================
-    function renderTable() {
-        const tbody = $('itemsBody');
-        const empty = $('emptyState');
-        const pdfBtn = $('btnPdf');
-
-        if (items.length === 0) {
-            tbody.innerHTML = '';
-            empty.style.display = 'block';
-            pdfBtn.disabled = true;
-            $('itemCount').textContent = '(0 بنود)';
-            return;
-        }
-
-        empty.style.display = 'none';
-        pdfBtn.disabled = false;
-        $('itemCount').textContent = '(' + items.length + ' بنود)';
-
-        let html = '';
-        items.forEach((item, idx) => {
-            const c = item.calc;
-            if (!c) return;
-            html += '<tr>' +
-                '<td><span class="row-num">' + (idx + 1) + '</span></td>' +
-                '<td>' + item.thickness.toFixed(1) + '</td>' +
-                '<td><span class="badge ' + (item.painted ? 'badge-painted' : 'badge-plain') + '">' +
-                    (item.painted ? 'مصبوغ' : 'بدون صبغ') + '</span></td>' +
-                '<td>' + fmt(item.length) + '</td>' +
-                '<td>' + fmt(c.costPiece) + '</td>' +
-                '<td>' + fmt(c.sellBeforeVat) + '</td>' +
-                '<td>' + fmt(c.finalPrice) + '</td>' +
-                '<td>' + fmt(c.profit) + '</td>' +
-                '<td>' + fmt(c.pricePerMeter) + '</td>' +
-                '<td>' + fmt(c.pricePerSqm) + '</td>' +
-                '<td><button class="btn btn-danger" onclick="removeItem(' + item.id + ')">حذف</button></td>' +
-                '</tr>';
-        });
-        tbody.innerHTML = html;
-    }
-
-    // ===========================
-    // Update Summary
-    // ===========================
-    function updateSummary() {
-        const section = $('summarySection');
-
-        if (items.length === 0) {
-            section.style.display = 'none';
-            return;
-        }
-
-        section.style.display = 'block';
-
-        let totalCost = 0, totalSell = 0, totalFinal = 0, totalProfit = 0;
-        let totalMeter = 0, totalSqm = 0;
-
-        items.forEach(item => {
-            if (!item.calc) return;
-            totalCost += item.calc.costPiece;
-            totalSell += item.calc.sellBeforeVat;
-            totalFinal += item.calc.finalPrice;
-            totalProfit += item.calc.profit;
-            totalMeter += item.calc.pricePerMeter;
-            totalSqm += item.calc.pricePerSqm;
-        });
-
-        const count = items.length;
-        const avgMeter = count > 0 ? totalMeter / count : 0;
-        const avgSqm = count > 0 ? totalSqm / count : 0;
-
-        $('totalCost').textContent = fmt(totalCost);
-        $('totalSell').textContent = fmt(totalSell);
-        $('totalFinal').textContent = fmt(totalFinal);
-        $('totalProfit').textContent = fmt(totalProfit);
-        $('avgMeter').textContent = fmt(avgMeter);
-        $('avgSqm').textContent = fmt(avgSqm);
-    }
-
-    // ===========================
-    // PDF Export
-    // ===========================
-    window.exportPDF = function() {
-        if (items.length === 0) return;
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-
-        const pageW = doc.internal.pageSize.getWidth();
-        const pageH = doc.internal.pageSize.getHeight();
-        const margin = 15;
-
-        // Colors
-        const primary = [26, 35, 126];
-        const accent = [255, 111, 0];
-        const lightGray = [245, 246, 250];
-        const textColor = [30, 41, 59];
-        const white = [255, 255, 255];
-
-        // Helper: right-aligned text
-        function textRight(text, x, y) {
-            doc.text(text, x, y, { align: 'right' });
-        }
-
-        // Helper: centered text
-        function textCenter(text, y) {
-            doc.text(text, pageW / 2, y, { align: 'center' });
-        }
-
-        // Header bar
-        doc.setFillColor(...primary);
-        doc.rect(0, 0, pageW, 22, 'F');
-
-        doc.setTextColor(...white);
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        textCenter('Aluminum Strip Price Quotation', 10);
-
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        textCenter('Quotation generated on: ' + new Date().toLocaleDateString('en-GB'), 18);
-
-        // Accent bar
-        doc.setFillColor(...accent);
-        doc.rect(0, 22, pageW, 2, 'F');
-
-        // Parameters box
-        let y = 32;
-        const p = getParams();
-
-        doc.setFillColor(...lightGray);
-        doc.roundedRect(margin, y - 4, pageW - 2 * margin, 18, 2, 2, 'F');
-
-        doc.setTextColor(...textColor);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-
-        const params = [
-            'LME: ' + p.lme + ' $/ton',
-            'Manufacturing: ' + p.manufacturing + ' $/ton',
-            'Painting: ' + p.painting + ' OMR/ton',
-            'Exchange: ' + p.exchangeRate + ' OMR/$',
-            'Profit: ' + p.profitMargin + '%',
-            'VAT: ' + p.vat + '%'
-        ];
-
-        const paramSpacing = (pageW - 2 * margin) / params.length;
-        params.forEach((param, i) => {
-            doc.text(param, margin + 5 + i * paramSpacing, y + 4);
-        });
-
-        // Table
-        y = 56;
-        const headers = ['#', 'Thickness (mm)', 'Status', 'Length (m)', 'Cost (OMR)', 'Sell Price (OMR)', 'Final Price (OMR)', 'Profit (OMR)', 'Price/m (OMR)', 'Price/sqm (OMR)'];
-        const colWidths = [10, 22, 22, 22, 26, 26, 28, 24, 24, 28];
-        const totalTableW = colWidths.reduce((a, b) => a + b, 0);
-        const tableX = (pageW - totalTableW) / 2;
-
-        // Header row
-        doc.setFillColor(...primary);
-        doc.rect(tableX, y, totalTableW, 8, 'F');
-        doc.setTextColor(...white);
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'bold');
-
-        let cx = tableX;
-        headers.forEach((h, i) => {
-            doc.text(h, cx + colWidths[i] / 2, y + 5.5, { align: 'center' });
-            cx += colWidths[i];
-        });
-
-        y += 8;
-
-        // Data rows
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(7.5);
-
-        items.forEach((item, idx) => {
-            if (!item.calc) return;
-
-            // Check page break
-            if (y + 8 > pageH - 30) {
-                doc.addPage();
-                y = margin;
-            }
-
-            const c = item.calc;
-            const isEven = idx % 2 === 0;
-
-            if (isEven) {
-                doc.setFillColor(...lightGray);
-                doc.rect(tableX, y, totalTableW, 7, 'F');
-            }
-
-            doc.setTextColor(...textColor);
-            const row = [
-                String(idx + 1),
-                item.thickness.toFixed(1),
-                item.painted ? 'Painted' : 'Plain',
-                fmt(item.length),
-                fmt(c.costPiece),
-                fmt(c.sellBeforeVat),
-                fmt(c.finalPrice),
-                fmt(c.profit),
-                fmt(c.pricePerMeter),
-                fmt(c.pricePerSqm)
-            ];
-
-            cx = tableX;
-            row.forEach((val, i) => {
-                doc.text(val, cx + colWidths[i] / 2, y + 5, { align: 'center' });
-                cx += colWidths[i];
-            });
-
-            y += 7;
-        });
-
-        // Bottom line
-        doc.setDrawColor(...primary);
-        doc.setLineWidth(0.3);
-        doc.line(tableX, y, tableX + totalTableW, y);
-
-        // Summary
-        y += 8;
-
-        // Check page break for summary
-        if (y + 30 > pageH - margin) {
-            doc.addPage();
-            y = margin;
-        }
-
-        let totalCost = 0, totalSell = 0, totalFinal = 0, totalProfit = 0;
-        let totalMeterSum = 0, totalSqmSum = 0;
-        items.forEach(item => {
-            if (!item.calc) return;
-            totalCost += item.calc.costPiece;
-            totalSell += item.calc.sellBeforeVat;
-            totalFinal += item.calc.finalPrice;
-            totalProfit += item.calc.profit;
-            totalMeterSum += item.calc.pricePerMeter;
-            totalSqmSum += item.calc.pricePerSqm;
-        });
-
-        const count = items.length;
-        const avgM = count > 0 ? totalMeterSum / count : 0;
-        const avgS = count > 0 ? totalSqmSum / count : 0;
-
-        doc.setFillColor(...primary);
-        doc.roundedRect(tableX, y, totalTableW, 28, 2, 2, 'F');
-
-        doc.setTextColor(...white);
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Summary', tableX + totalTableW / 2, y + 6, { align: 'center' });
-
-        doc.setFontSize(7.5);
-        doc.setFont('helvetica', 'normal');
-
-        const summaryData = [
-            ['Total Cost: ' + fmt(totalCost) + ' OMR', 'Total Sell (before VAT): ' + fmt(totalSell) + ' OMR', 'Total Sell (after VAT): ' + fmt(totalFinal) + ' OMR'],
-            ['Total Profit: ' + fmt(totalProfit) + ' OMR', 'Avg Price/m: ' + fmt(avgM) + ' OMR/m', 'Avg Price/sqm: ' + fmt(avgS) + ' OMR/sqm']
-        ];
-
-        const colW = totalTableW / 3;
-        summaryData.forEach((row, ri) => {
-            row.forEach((text, ci) => {
-                doc.text(text, tableX + 8 + ci * colW, y + 13 + ri * 7);
-            });
-        });
-
-        // Footer
-        doc.setFillColor(...accent);
-        doc.rect(0, pageH - 8, pageW, 8, 'F');
-        doc.setTextColor(...white);
-        doc.setFontSize(7);
-        textCenter('Aluminum Strip Pricing System - Generated: ' + new Date().toLocaleString('en-GB'), pageH - 3);
-
-        // Save
-        doc.save('aluminum-quotation-' + new Date().toISOString().slice(0, 10) + '.pdf');
-    };
-
-    // ===========================
-    // Event Listeners
-    // ===========================
-
-    // Recalculate all items when global params change
-    Object.values(inputs).forEach(input => {
-        input.addEventListener('input', recalculateAll);
-    });
-
-    // Live preview for item form
-    itemInputs.thickness.addEventListener('change', updatePreview);
-    itemInputs.length.addEventListener('input', updatePreview);
-    itemInputs.painted.addEventListener('change', updatePreview);
-
-    // Set current date
-    $('currentDate').textContent = new Date().toLocaleDateString('ar-OM', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-
-    // Enter key to add item
-    itemInputs.length.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addItem();
-        }
-    });
-
-    // Initial render
-    renderTable();
-
+(function(){
+'use strict';
+
+// ===== CONSTANTS =====
+const W = {'1.1': 0.63, '1.5': 0.839};
+const SQM = 13;
+
+// ===== STATE =====
+let items = [];
+let nid = 1;
+let vatMode = 'accounting'; // 'accounting' | 'industrial'
+
+// ===== DOM =====
+const $ = id => document.getElementById(id);
+
+// ===== UTILS =====
+function fmt(n) {
+  if (typeof n !== 'number' || !isFinite(n) || isNaN(n)) return '0.000';
+  return n.toFixed(3);
+}
+
+function getP() {
+  return {
+    lme:   parseFloat($('p_lme').value)    || 0,
+    mfg:   parseFloat($('p_mfg').value)    || 0,
+    paint: parseFloat($('p_paint').value)   || 0,
+    rate:  parseFloat($('p_rate').value)    || 0,
+    profit:parseFloat($('p_profit').value)  || 0,
+    vat:   parseFloat($('p_vat').value)     || 0
+  };
+}
+
+// ===== CORE CALCULATION =====
+function calc(thickness, length, painted) {
+  const p = getP();
+  const w = W[String(thickness)] || 0;
+  if (length <= 0 || w <= 0) return null;
+
+  const metalPM  = (p.lme / 1000) * w * p.rate;
+  const mfgPM    = (p.mfg / 1000) * w * p.rate;
+  const paintPM  = painted ? (p.paint / 1000) * w : 0;
+  const costPM   = metalPM + mfgPM + paintPM;
+  const costPiece = costPM * length;
+
+  let sellBeforeVat, finalPrice, profit, pricePerMeter;
+
+  if (vatMode === 'accounting') {
+    // الضريبة على البيع (محاسبي)
+    sellBeforeVat = costPiece * (1 + p.profit / 100);
+    finalPrice    = sellBeforeVat * (1 + p.vat / 100);
+    profit        = sellBeforeVat - costPiece;
+    pricePerMeter = length > 0 ? sellBeforeVat / length : 0;
+  } else {
+    // الضريبة ضمن التكلفة (صناعي)
+    const costWithVat = costPiece * (1 + p.vat / 100);
+    finalPrice    = costWithVat * (1 + p.profit / 100);
+    profit        = finalPrice - costWithVat;
+    sellBeforeVat = costWithVat; // displayed as "sell" in industrial = cost+vat
+    pricePerMeter = length > 0 ? finalPrice / length : 0;
+  }
+
+  const pricePerSqm = pricePerMeter * SQM;
+
+  return { metalPM, mfgPM, paintPM, costPM, costPiece, sellBeforeVat, finalPrice, profit, pricePerMeter, pricePerSqm };
+}
+
+// ===== TAB SWITCHING =====
+window.switchTab = function(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  $('page-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-btn')[tab === 'pricing' ? 0 : 1].classList.add('active');
+  if (tab === 'weight') updateWParamsRef();
+};
+
+// ===== VAT MODE TOGGLE =====
+window.toggleVatMode = function() {
+  const track = $('vatToggle');
+  if (vatMode === 'accounting') {
+    vatMode = 'industrial';
+    track.classList.add('right');
+    $('tl_acc').classList.remove('active');
+    $('tl_ind').classList.add('active');
+    $('modeTag').textContent = 'صناعي';
+    $('modeTag').className = 'mode-indicator mi-green';
+  } else {
+    vatMode = 'accounting';
+    track.classList.remove('right');
+    $('tl_ind').classList.remove('active');
+    $('tl_acc').classList.add('active');
+    $('modeTag').textContent = 'محاسبي';
+    $('modeTag').className = 'mode-indicator mi-blue';
+  }
+  recalcAll();
+};
+
+// ===== LIVE PREVIEW =====
+function updatePreview() {
+  const th = $('i_thick').value;
+  const len = parseFloat($('i_len').value) || 0;
+  const pa = $('i_paint').checked;
+  const box = $('livePreview');
+  if (len <= 0) { box.style.display = 'none'; return; }
+  const c = calc(th, len, pa);
+  if (!c) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  $('pv_cost').textContent   = fmt(c.costPiece) + ' ر.ع';
+  $('pv_sell').textContent   = fmt(c.sellBeforeVat) + ' ر.ع';
+  $('pv_final').textContent  = fmt(c.finalPrice) + ' ر.ع';
+  $('pv_profit').textContent = fmt(c.profit) + ' ر.ع';
+  $('pv_meter').textContent  = fmt(c.pricePerMeter) + ' ر.ع';
+  $('pv_sqm').textContent    = fmt(c.pricePerSqm) + ' ر.ع';
+}
+
+// ===== ADD ITEM =====
+window.addItem = function() {
+  const err = $('itemErr');
+  err.classList.remove('show');
+  const th  = $('i_thick').value;
+  const len = parseFloat($('i_len').value);
+  const pa  = $('i_paint').checked;
+  if (!len || len <= 0) {
+    err.textContent = 'يرجى إدخال طول صحيح أكبر من صفر';
+    err.classList.add('show');
+    return;
+  }
+  const c = calc(th, len, pa);
+  if (!c) {
+    err.textContent = 'خطأ في الحساب — تحقق من المعطيات العامة';
+    err.classList.add('show');
+    return;
+  }
+  items.push({ id: nid++, thickness: parseFloat(th), length: len, painted: pa, calc: c });
+  $('i_len').value = '';
+  $('livePreview').style.display = 'none';
+  render();
+};
+
+// ===== REMOVE / CLEAR =====
+window.removeItem = function(id) {
+  items = items.filter(i => i.id !== id);
+  render();
+};
+window.clearAll = function() {
+  if (!items.length) return;
+  if (!confirm('هل أنت متأكد من مسح جميع البنود؟')) return;
+  items = [];
+  render();
+};
+
+// ===== RECALCULATE ALL =====
+function recalcAll() {
+  items.forEach(it => { it.calc = calc(it.thickness, it.length, it.painted); });
+  render();
+  updatePreview();
+}
+
+// ===== RENDER TABLE =====
+function render() {
+  const tb = $('tBody');
+  const es = $('emptyState');
+  const pb = $('btnPdf');
+  if (!items.length) {
+    tb.innerHTML = '';
+    es.style.display = 'block';
+    pb.disabled = true;
+    $('itemCount').textContent = '(0)';
+    $('summarySection').style.display = 'none';
+    return;
+  }
+  es.style.display = 'none';
+  pb.disabled = false;
+  $('itemCount').textContent = '(' + items.length + ')';
+
+  let html = '';
+  items.forEach((it, idx) => {
+    const c = it.calc;
+    if (!c) return;
+    html += '<tr>' +
+      '<td><span class="row-n">' + (idx+1) + '</span></td>' +
+      '<td>' + it.thickness.toFixed(1) + ' ملم</td>' +
+      '<td><span class="badge ' + (it.painted ? 'badge-green' : 'badge-gray') + '">' + (it.painted ? 'مصبوغ' : 'بدون صبغ') + '</span></td>' +
+      '<td>' + fmt(it.length) + '</td>' +
+      '<td>' + fmt(c.costPiece) + '</td>' +
+      '<td>' + fmt(c.sellBeforeVat) + '</td>' +
+      '<td>' + fmt(c.finalPrice) + '</td>' +
+      '<td>' + fmt(c.profit) + '</td>' +
+      '<td>' + fmt(c.pricePerMeter) + '</td>' +
+      '<td>' + fmt(c.pricePerSqm) + '</td>' +
+      '<td><button class="btn btn-ghost" onclick="removeItem(' + it.id + ')">&#10005;</button></td>' +
+      '</tr>';
+  });
+  tb.innerHTML = html;
+  updateSummary();
+}
+
+// ===== SUMMARY =====
+function updateSummary() {
+  const sec = $('summarySection');
+  if (!items.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+
+  let tCost = 0, tSell = 0, tFinal = 0, tProfit = 0, tMeter = 0, tSqm = 0;
+  items.forEach(it => {
+    if (!it.calc) return;
+    tCost   += it.calc.costPiece;
+    tSell   += it.calc.sellBeforeVat;
+    tFinal  += it.calc.finalPrice;
+    tProfit += it.calc.profit;
+    tMeter  += it.calc.pricePerMeter;
+    tSqm   += it.calc.pricePerSqm;
+  });
+
+  const n = items.length;
+  $('s_cost').textContent   = fmt(tCost);
+  $('s_sell').textContent   = fmt(tSell);
+  $('s_final').textContent  = fmt(tFinal);
+  $('s_profit').textContent = fmt(tProfit);
+  $('s_meter').textContent  = fmt(n > 0 ? tMeter / n : 0);
+  $('s_sqm').textContent    = fmt(n > 0 ? tSqm / n : 0);
+}
+
+// ===== WEIGHT CALCULATOR =====
+function updateWParamsRef() {
+  const p = getP();
+  $('wParamsRef').innerHTML =
+    '<table class="ref-table">' +
+    '<tr><td>LME</td><td>' + p.lme + ' $/طن</td></tr>' +
+    '<tr><td>المصنعية</td><td>' + p.mfg + ' $/طن</td></tr>' +
+    '<tr><td>الصبغ</td><td>' + p.paint + ' ر.ع/طن</td></tr>' +
+    '<tr><td>سعر الصرف</td><td>' + p.rate + ' ر.ع/$</td></tr>' +
+    '<tr><td>الربح</td><td>' + p.profit + ' %</td></tr>' +
+    '<tr><td>VAT</td><td>' + p.vat + ' %</td></tr>' +
+    '<tr><td>وضع الضريبة</td><td>' + (vatMode === 'accounting' ? 'محاسبي' : 'صناعي') + '</td></tr>' +
+    '</table>';
+}
+
+window.calcWeight = function() {
+  const kg   = parseFloat($('w_kg').value) || 0;
+  const th   = $('w_thick').value;
+  const plen = parseFloat($('w_plen').value) || 0;
+  const pa   = $('w_paint').checked;
+  const w    = W[String(th)] || 0;
+
+  if (kg <= 0 || w <= 0 || plen <= 0) {
+    alert('يرجى إدخال جميع البيانات بقيم صحيحة أكبر من صفر');
+    return;
+  }
+
+  // Cost per meter (from main system)
+  const p = getP();
+  const metalPM = (p.lme / 1000) * w * p.rate;
+  const mfgPM   = (p.mfg / 1000) * w * p.rate;
+  const paintPM = pa ? (p.paint / 1000) * w : 0;
+  const costPM  = metalPM + mfgPM + paintPM;
+
+  const totalLen  = kg / w;
+  const pieces    = Math.floor(totalLen / plen);
+  const costPiece = costPM * plen;
+  const costTotal = costPM * totalLen;
+  const costSqm   = costPM * SQM;
+
+  $('wEmpty').style.display = 'none';
+  $('wResults').style.display = 'block';
+  $('wr_len').textContent   = fmt(totalLen);
+  $('wr_pcs').textContent   = pieces;
+  $('wr_cpm').textContent   = fmt(costPM);
+  $('wr_cpsqm').textContent = fmt(costSqm);
+  $('wr_cpp').textContent   = fmt(costPiece);
+  $('wr_total').textContent = fmt(costTotal);
+};
+
+// ===== PDF EXPORT =====
+window.exportPDF = function() {
+  if (!items.length) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const mg = 15;
+
+  const cPri = [15,23,42];
+  const cAcc = [245,158,11];
+  const cBlu = [59,130,246];
+  const cGrn = [16,185,129];
+  const cGry = [248,250,252];
+  const cTxt = [15,23,42];
+  const cWht = [255,255,255];
+
+  // Header
+  doc.setFillColor(...cPri);
+  doc.rect(0, 0, pw, 24, 'F');
+  doc.setFillColor(...cAcc);
+  doc.rect(0, 24, pw, 2.5, 'F');
+
+  doc.setTextColor(...cWht);
+  doc.setFontSize(17);
+  doc.setFont('helvetica','bold');
+  doc.text('Aluminum Strip Price Quotation', pw/2, 10, {align:'center'});
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  doc.text('Date: ' + new Date().toLocaleDateString('en-GB'), pw/2, 18, {align:'center'});
+  doc.setFontSize(7.5);
+  doc.text('Mode: ' + (vatMode === 'accounting' ? 'Accounting (VAT on Sale)' : 'Industrial (VAT in Cost)'), pw/2, 22, {align:'center'});
+
+  // Parameters box
+  let y = 34;
+  const p = getP();
+  doc.setFillColor(...cGry);
+  doc.roundedRect(mg, y-4, pw-2*mg, 16, 2, 2, 'F');
+  doc.setTextColor(...cTxt);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica','bold');
+  const params = [
+    'LME: ' + p.lme + ' $/ton',
+    'Mfg: ' + p.mfg + ' $/ton',
+    'Paint: ' + p.paint + ' OMR/ton',
+    'Rate: ' + p.rate + ' OMR/$',
+    'Profit: ' + p.profit + '%',
+    'VAT: ' + p.vat + '%'
+  ];
+  const psp = (pw-2*mg) / params.length;
+  params.forEach((t,i) => doc.text(t, mg+5 + i*psp, y+4));
+
+  // Table
+  y = 56;
+  const headers = ['#','Thickness','Status','Length (m)','Cost','Sell Price','Final Price','Profit','Price/m','Price/sqm'];
+  const cw = [10, 20, 22, 22, 26, 26, 28, 24, 24, 28];
+  const tw = cw.reduce((a,b)=>a+b, 0);
+  const tx = (pw - tw) / 2;
+
+  doc.setFillColor(...cPri);
+  doc.rect(tx, y, tw, 8, 'F');
+  doc.setTextColor(...cWht);
+  doc.setFontSize(7);
+  doc.setFont('helvetica','bold');
+  let cx = tx;
+  headers.forEach((h,i) => { doc.text(h, cx+cw[i]/2, y+5.5, {align:'center'}); cx += cw[i]; });
+  y += 8;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  items.forEach((it,idx) => {
+    if (!it.calc) return;
+    if (y+8 > ph-30) { doc.addPage(); y = mg; }
+    const c = it.calc;
+    if (idx%2===0) { doc.setFillColor(...cGry); doc.rect(tx, y, tw, 7, 'F'); }
+    doc.setTextColor(...cTxt);
+    const row = [String(idx+1), it.thickness.toFixed(1)+' mm', it.painted?'Painted':'Plain', fmt(it.length), fmt(c.costPiece), fmt(c.sellBeforeVat), fmt(c.finalPrice), fmt(c.profit), fmt(c.pricePerMeter), fmt(c.pricePerSqm)];
+    cx = tx;
+    row.forEach((v,i) => { doc.text(v, cx+cw[i]/2, y+5, {align:'center'}); cx += cw[i]; });
+    y += 7;
+  });
+
+  doc.setDrawColor(...cPri);
+  doc.setLineWidth(0.3);
+  doc.line(tx, y, tx+tw, y);
+
+  // Summary
+  y += 6;
+  if (y+30 > ph-mg) { doc.addPage(); y = mg; }
+
+  let tCost=0, tSell=0, tFinal=0, tProfit=0, tM=0, tS=0;
+  items.forEach(it => {
+    if(!it.calc) return;
+    tCost+=it.calc.costPiece; tSell+=it.calc.sellBeforeVat; tFinal+=it.calc.finalPrice;
+    tProfit+=it.calc.profit; tM+=it.calc.pricePerMeter; tS+=it.calc.pricePerSqm;
+  });
+  const n = items.length;
+
+  doc.setFillColor(...cPri);
+  doc.roundedRect(tx, y, tw, 26, 2, 2, 'F');
+  doc.setTextColor(...cWht);
+  doc.setFontSize(9);
+  doc.setFont('helvetica','bold');
+  doc.text('Totals Summary', tx+tw/2, y+6, {align:'center'});
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica','normal');
+
+  const sData = [
+    ['Total Cost: ' + fmt(tCost) + ' OMR', 'Total Sell: ' + fmt(tSell) + ' OMR', 'Total Final: ' + fmt(tFinal) + ' OMR'],
+    ['Total Profit: ' + fmt(tProfit) + ' OMR', 'Avg Price/m: ' + fmt(n>0?tM/n:0) + ' OMR', 'Avg Price/sqm: ' + fmt(n>0?tS/n:0) + ' OMR']
+  ];
+  const scw = tw / 3;
+  sData.forEach((row,ri) => { row.forEach((t,ci) => { doc.text(t, tx+8+ci*scw, y+13+ri*7); }); });
+
+  // Footer
+  doc.setFillColor(...cAcc);
+  doc.rect(0, ph-8, pw, 8, 'F');
+  doc.setTextColor(...cWht);
+  doc.setFontSize(7);
+  doc.text('Aluminum Strip Pricing System | ' + new Date().toLocaleString('en-GB'), pw/2, ph-3, {align:'center'});
+
+  doc.save('aluminum-quotation-' + new Date().toISOString().slice(0,10) + '.pdf');
+};
+
+// ===== EVENT LISTENERS =====
+['p_lme','p_mfg','p_paint','p_rate','p_profit','p_vat'].forEach(id => {
+  $(id).addEventListener('input', recalcAll);
+});
+['i_thick','i_len','i_paint'].forEach(id => {
+  const el = $(id);
+  el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', updatePreview);
+  if (el.type === 'checkbox') el.addEventListener('change', updatePreview);
+});
+$('i_len').addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();addItem()} });
+
+// Date
+$('headerDate').textContent = new Date().toLocaleDateString('ar-OM',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// Initial render
+render();
 })();
 </script>
 </body>
