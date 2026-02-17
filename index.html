@@ -543,26 +543,25 @@ function calc(thickness, length, painted) {
   // التكلفة شاملة الضريبة
   const costPieceVat = costPiece * (1 + p.vat / 100);
 
-  let sellBeforeVat, finalPrice, profit, pricePerMeter;
+  // سعر البيع = التكلفة + نسبة الربح (نفس المعادلة في الوضعين)
+  const sellPrice = costPiece * (1 + p.profit / 100);
+  const profit    = sellPrice - costPiece;
+
+  let finalPrice, pricePerMeter;
 
   if (vatMode === 'accounting') {
-    // الضريبة على البيع (محاسبي)
-    sellBeforeVat = costPiece * (1 + p.profit / 100);
-    finalPrice    = sellBeforeVat * (1 + p.vat / 100);
-    profit        = sellBeforeVat - costPiece;
-    pricePerMeter = length > 0 ? sellBeforeVat / length : 0;
+    // محاسبي: السعر النهائي = سعر البيع + الضريبة
+    finalPrice    = sellPrice * (1 + p.vat / 100);
+    pricePerMeter = length > 0 ? finalPrice / length : 0;
   } else {
-    // الضريبة ضمن التكلفة (صناعي)
-    const costWithVat = costPiece * (1 + p.vat / 100);
-    finalPrice    = costWithVat * (1 + p.profit / 100);
-    profit        = finalPrice - costWithVat;
-    sellBeforeVat = costWithVat;
+    // صناعي: السعر النهائي = سعر البيع بدون ضريبة
+    finalPrice    = sellPrice;
     pricePerMeter = length > 0 ? finalPrice / length : 0;
   }
 
   const pricePerSqm = pricePerMeter * SQM;
 
-  return { metalPM, mfgPM, paintPM, costPM, costPiece, costPieceVat, sellBeforeVat, finalPrice, profit, pricePerMeter, pricePerSqm };
+  return { metalPM, mfgPM, paintPM, costPM, costPiece, costPieceVat, sellPrice, finalPrice, profit, pricePerMeter, pricePerSqm };
 }
 
 // ===== TAB SWITCHING =====
@@ -606,7 +605,7 @@ function updatePreview() {
   if (!c) { box.style.display = 'none'; return; }
   box.style.display = 'block';
   $('pv_cost').textContent   = fmt(c.costPieceVat) + ' ر.ع';
-  $('pv_sell').textContent   = fmt(c.sellBeforeVat) + ' ر.ع';
+  $('pv_sell').textContent   = fmt(c.sellPrice) + ' ر.ع';
   $('pv_final').textContent  = fmt(c.finalPrice) + ' ر.ع';
   $('pv_profit').textContent = fmt(c.profit) + ' ر.ع';
   $('pv_meter').textContent  = fmt(c.pricePerMeter) + ' ر.ع';
@@ -683,7 +682,7 @@ function render() {
       '<td><span class="badge ' + (it.painted ? 'badge-green' : 'badge-gray') + '">' + (it.painted ? 'مصبوغ' : 'بدون صبغ') + '</span></td>' +
       '<td>' + fmt(it.length) + '</td>' +
       '<td>' + fmt(c.costPieceVat) + '</td>' +
-      '<td>' + fmt(c.sellBeforeVat) + '</td>' +
+      '<td>' + fmt(c.sellPrice) + '</td>' +
       '<td>' + fmt(c.finalPrice) + '</td>' +
       '<td>' + fmt(c.profit) + '</td>' +
       '<td>' + fmt(c.pricePerMeter) + '</td>' +
@@ -705,7 +704,7 @@ function updateSummary() {
   items.forEach(it => {
     if (!it.calc) return;
     tCost   += it.calc.costPieceVat;
-    tSell   += it.calc.sellBeforeVat;
+    tSell   += it.calc.sellPrice;
     tFinal  += it.calc.finalPrice;
     tProfit += it.calc.profit;
     tMeter  += it.calc.pricePerMeter;
@@ -850,7 +849,7 @@ window.exportPDF = function() {
     const c = it.calc;
     if (idx%2===0) { doc.setFillColor(...cGry); doc.rect(tx, y, tw, 7, 'F'); }
     doc.setTextColor(...cTxt);
-    const row = [String(idx+1), it.thickness.toFixed(1)+' mm', it.painted?'Painted':'Plain', fmt(it.length), fmt(c.costPieceVat), fmt(c.sellBeforeVat), fmt(c.finalPrice), fmt(c.profit), fmt(c.pricePerMeter), fmt(c.pricePerSqm)];
+    const row = [String(idx+1), it.thickness.toFixed(1)+' mm', it.painted?'Painted':'Plain', fmt(it.length), fmt(c.costPieceVat), fmt(c.sellPrice), fmt(c.finalPrice), fmt(c.profit), fmt(c.pricePerMeter), fmt(c.pricePerSqm)];
     cx = tx;
     row.forEach((v,i) => { doc.text(v, cx+cw[i]/2, y+5, {align:'center'}); cx += cw[i]; });
     y += 7;
@@ -867,7 +866,7 @@ window.exportPDF = function() {
   let tCost=0, tSell=0, tFinal=0, tProfit=0, tM=0, tS=0;
   items.forEach(it => {
     if(!it.calc) return;
-    tCost+=it.calc.costPieceVat; tSell+=it.calc.sellBeforeVat; tFinal+=it.calc.finalPrice;
+    tCost+=it.calc.costPieceVat; tSell+=it.calc.sellPrice; tFinal+=it.calc.finalPrice;
     tProfit+=it.calc.profit; tM+=it.calc.pricePerMeter; tS+=it.calc.pricePerSqm;
   });
   const n = items.length;
