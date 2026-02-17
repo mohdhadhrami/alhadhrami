@@ -300,7 +300,7 @@ tbody tr:hover{background:#e0f2fe}
             <div class="preview-box" id="livePreview" style="display:none">
               <h4>معاينة مباشرة</h4>
               <div class="prev-grid">
-                <div class="prev-item"><span class="pl">تكلفة القطعة:</span><span class="pv" id="pv_cost">-</span></div>
+                <div class="prev-item"><span class="pl">التكلفة + ض.ق.م:</span><span class="pv" id="pv_cost">-</span></div>
                 <div class="prev-item"><span class="pl">سعر البيع:</span><span class="pv" id="pv_sell">-</span></div>
                 <div class="prev-item"><span class="pl">السعر النهائي:</span><span class="pv" id="pv_final">-</span></div>
                 <div class="prev-item"><span class="pl">الربح:</span><span class="pv" id="pv_profit">-</span></div>
@@ -353,7 +353,7 @@ tbody tr:hover{background:#e0f2fe}
                     <th>السماكة</th>
                     <th>الحالة</th>
                     <th>الطول (م)</th>
-                    <th>تكلفة القطعة</th>
+                    <th>التكلفة + ض.ق.م</th>
                     <th>سعر البيع</th>
                     <th>السعر النهائي</th>
                     <th>الربح</th>
@@ -375,7 +375,7 @@ tbody tr:hover{background:#e0f2fe}
         <!-- Summary -->
         <div id="summarySection" style="display:none">
           <div class="summary-row">
-            <div class="s-card"><div class="s-label">إجمالي التكلفة</div><div class="s-val" id="s_cost">0.000</div><div class="s-unit">ر.ع</div></div>
+            <div class="s-card"><div class="s-label">إجمالي التكلفة + ض.ق.م</div><div class="s-val" id="s_cost">0.000</div><div class="s-unit">ر.ع</div></div>
             <div class="s-card s-blue"><div class="s-label">إجمالي البيع</div><div class="s-val" id="s_sell">0.000</div><div class="s-unit">ر.ع</div></div>
             <div class="s-card s-dark"><div class="s-label">إجمالي البيع النهائي</div><div class="s-val" id="s_final">0.000</div><div class="s-unit">ر.ع</div></div>
             <div class="s-card s-green"><div class="s-label">إجمالي الربح</div><div class="s-val" id="s_profit">0.000</div><div class="s-unit">ر.ع</div></div>
@@ -461,22 +461,22 @@ tbody tr:hover{background:#e0f2fe}
                   <div class="cr-unit">قطعة</div>
                 </div>
                 <div class="calc-res-card cr-blue">
-                  <div class="cr-label">تكلفة المتر</div>
+                  <div class="cr-label">تكلفة المتر + ض.ق.م</div>
                   <div class="cr-val" id="wr_cpm">0.000</div>
                   <div class="cr-unit">ر.ع/م</div>
                 </div>
                 <div class="calc-res-card cr-blue">
-                  <div class="cr-label">تكلفة المتر المربع</div>
+                  <div class="cr-label">تكلفة م&#178; + ض.ق.م</div>
                   <div class="cr-val" id="wr_cpsqm">0.000</div>
                   <div class="cr-unit">ر.ع/م&#178;</div>
                 </div>
                 <div class="calc-res-card cr-green">
-                  <div class="cr-label">تكلفة الشريحة الواحدة</div>
+                  <div class="cr-label">تكلفة الشريحة + ض.ق.م</div>
                   <div class="cr-val" id="wr_cpp">0.000</div>
                   <div class="cr-unit">ر.ع</div>
                 </div>
                 <div class="calc-res-card" style="border-color:var(--primary);background:#f0f2ff">
-                  <div class="cr-label">إجمالي التكلفة</div>
+                  <div class="cr-label">إجمالي التكلفة + ض.ق.م</div>
                   <div class="cr-val" id="wr_total" style="color:var(--primary)">0.000</div>
                   <div class="cr-unit">ر.ع</div>
                 </div>
@@ -540,6 +540,9 @@ function calc(thickness, length, painted) {
   const costPM   = metalPM + mfgPM + paintPM;
   const costPiece = costPM * length;
 
+  // التكلفة شاملة الضريبة
+  const costPieceVat = costPiece * (1 + p.vat / 100);
+
   let sellBeforeVat, finalPrice, profit, pricePerMeter;
 
   if (vatMode === 'accounting') {
@@ -553,13 +556,13 @@ function calc(thickness, length, painted) {
     const costWithVat = costPiece * (1 + p.vat / 100);
     finalPrice    = costWithVat * (1 + p.profit / 100);
     profit        = finalPrice - costWithVat;
-    sellBeforeVat = costWithVat; // displayed as "sell" in industrial = cost+vat
+    sellBeforeVat = costWithVat;
     pricePerMeter = length > 0 ? finalPrice / length : 0;
   }
 
   const pricePerSqm = pricePerMeter * SQM;
 
-  return { metalPM, mfgPM, paintPM, costPM, costPiece, sellBeforeVat, finalPrice, profit, pricePerMeter, pricePerSqm };
+  return { metalPM, mfgPM, paintPM, costPM, costPiece, costPieceVat, sellBeforeVat, finalPrice, profit, pricePerMeter, pricePerSqm };
 }
 
 // ===== TAB SWITCHING =====
@@ -602,7 +605,7 @@ function updatePreview() {
   const c = calc(th, len, pa);
   if (!c) { box.style.display = 'none'; return; }
   box.style.display = 'block';
-  $('pv_cost').textContent   = fmt(c.costPiece) + ' ر.ع';
+  $('pv_cost').textContent   = fmt(c.costPieceVat) + ' ر.ع';
   $('pv_sell').textContent   = fmt(c.sellBeforeVat) + ' ر.ع';
   $('pv_final').textContent  = fmt(c.finalPrice) + ' ر.ع';
   $('pv_profit').textContent = fmt(c.profit) + ' ر.ع';
@@ -679,7 +682,7 @@ function render() {
       '<td>' + it.thickness.toFixed(1) + ' ملم</td>' +
       '<td><span class="badge ' + (it.painted ? 'badge-green' : 'badge-gray') + '">' + (it.painted ? 'مصبوغ' : 'بدون صبغ') + '</span></td>' +
       '<td>' + fmt(it.length) + '</td>' +
-      '<td>' + fmt(c.costPiece) + '</td>' +
+      '<td>' + fmt(c.costPieceVat) + '</td>' +
       '<td>' + fmt(c.sellBeforeVat) + '</td>' +
       '<td>' + fmt(c.finalPrice) + '</td>' +
       '<td>' + fmt(c.profit) + '</td>' +
@@ -701,7 +704,7 @@ function updateSummary() {
   let tCost = 0, tSell = 0, tFinal = 0, tProfit = 0, tMeter = 0, tSqm = 0;
   items.forEach(it => {
     if (!it.calc) return;
-    tCost   += it.calc.costPiece;
+    tCost   += it.calc.costPieceVat;
     tSell   += it.calc.sellBeforeVat;
     tFinal  += it.calc.finalPrice;
     tProfit += it.calc.profit;
@@ -752,17 +755,20 @@ window.calcWeight = function() {
   const paintPM = pa ? (p.paint / 1000) * w : 0;
   const costPM  = metalPM + mfgPM + paintPM;
 
+  // التكلفة شاملة الضريبة
+  const costPMvat = costPM * (1 + p.vat / 100);
+
   const totalLen  = kg / w;
   const pieces    = Math.floor(totalLen / plen);
-  const costPiece = costPM * plen;
-  const costTotal = costPM * totalLen;
-  const costSqm   = costPM * SQM;
+  const costPiece = costPMvat * plen;
+  const costTotal = costPMvat * totalLen;
+  const costSqm   = costPMvat * SQM;
 
   $('wEmpty').style.display = 'none';
   $('wResults').style.display = 'block';
   $('wr_len').textContent   = fmt(totalLen);
   $('wr_pcs').textContent   = pieces;
-  $('wr_cpm').textContent   = fmt(costPM);
+  $('wr_cpm').textContent   = fmt(costPMvat);
   $('wr_cpsqm').textContent = fmt(costSqm);
   $('wr_cpp').textContent   = fmt(costPiece);
   $('wr_total').textContent = fmt(costTotal);
@@ -822,7 +828,7 @@ window.exportPDF = function() {
 
   // Table
   y = 56;
-  const headers = ['#','Thickness','Status','Length (m)','Cost','Sell Price','Final Price','Profit','Price/m','Price/sqm'];
+  const headers = ['#','Thickness','Status','Length (m)','Cost+VAT','Sell Price','Final Price','Profit','Price/m','Price/sqm'];
   const cw = [10, 20, 22, 22, 26, 26, 28, 24, 24, 28];
   const tw = cw.reduce((a,b)=>a+b, 0);
   const tx = (pw - tw) / 2;
@@ -844,7 +850,7 @@ window.exportPDF = function() {
     const c = it.calc;
     if (idx%2===0) { doc.setFillColor(...cGry); doc.rect(tx, y, tw, 7, 'F'); }
     doc.setTextColor(...cTxt);
-    const row = [String(idx+1), it.thickness.toFixed(1)+' mm', it.painted?'Painted':'Plain', fmt(it.length), fmt(c.costPiece), fmt(c.sellBeforeVat), fmt(c.finalPrice), fmt(c.profit), fmt(c.pricePerMeter), fmt(c.pricePerSqm)];
+    const row = [String(idx+1), it.thickness.toFixed(1)+' mm', it.painted?'Painted':'Plain', fmt(it.length), fmt(c.costPieceVat), fmt(c.sellBeforeVat), fmt(c.finalPrice), fmt(c.profit), fmt(c.pricePerMeter), fmt(c.pricePerSqm)];
     cx = tx;
     row.forEach((v,i) => { doc.text(v, cx+cw[i]/2, y+5, {align:'center'}); cx += cw[i]; });
     y += 7;
@@ -861,7 +867,7 @@ window.exportPDF = function() {
   let tCost=0, tSell=0, tFinal=0, tProfit=0, tM=0, tS=0;
   items.forEach(it => {
     if(!it.calc) return;
-    tCost+=it.calc.costPiece; tSell+=it.calc.sellBeforeVat; tFinal+=it.calc.finalPrice;
+    tCost+=it.calc.costPieceVat; tSell+=it.calc.sellBeforeVat; tFinal+=it.calc.finalPrice;
     tProfit+=it.calc.profit; tM+=it.calc.pricePerMeter; tS+=it.calc.pricePerSqm;
   });
   const n = items.length;
@@ -876,7 +882,7 @@ window.exportPDF = function() {
   doc.setFont('helvetica','normal');
 
   const sData = [
-    ['Total Cost: ' + fmt(tCost) + ' OMR', 'Total Sell: ' + fmt(tSell) + ' OMR', 'Total Final: ' + fmt(tFinal) + ' OMR'],
+    ['Total Cost+VAT: ' + fmt(tCost) + ' OMR', 'Total Sell: ' + fmt(tSell) + ' OMR', 'Total Final: ' + fmt(tFinal) + ' OMR'],
     ['Total Profit: ' + fmt(tProfit) + ' OMR', 'Avg Price/m: ' + fmt(n>0?tM/n:0) + ' OMR', 'Avg Price/sqm: ' + fmt(n>0?tS/n:0) + ' OMR']
   ];
   const scw = tw / 3;
